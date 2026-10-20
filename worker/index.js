@@ -22,10 +22,17 @@ export default {
     const res = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
       headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'User-Agent': 'ytm-theme-auth' },
-      body: JSON.stringify({ client_id: env.GITHUB_CLIENT_ID, client_secret: env.GITHUB_CLIENT_SECRET, code }),
+      body: JSON.stringify({ client_id: String(env.GITHUB_CLIENT_ID || '').trim(), client_secret: String(env.GITHUB_CLIENT_SECRET || '').trim(), code }),
     });
     const data = await res.json().catch(() => ({}));
-    if (!data.access_token) return json({ error: data.error || 'exchange_failed', error_description: data.error_description }, 400);
+    if (!data.access_token) {
+      // Diagnostics only: shows which Client ID was used and how long the stored secret is, never the secret itself.
+      const secret = String(env.GITHUB_CLIENT_SECRET || '');
+      const hint = data.error === 'incorrect_client_credentials'
+        ? ` (worker used client ID "${env.GITHUB_CLIENT_ID || '(empty)'}", stored secret is ${secret.length} characters${secret !== secret.trim() ? ' and has spaces around it' : ''}; a GitHub client secret is 40 characters)`
+        : '';
+      return json({ error: data.error || 'exchange_failed', error_description: (data.error_description || '') + hint }, 400);
+    }
     return json({ access_token: data.access_token, scope: data.scope, token_type: data.token_type });
   },
 };
