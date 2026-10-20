@@ -60,3 +60,14 @@ It prints a URL like `https://ytm-auth.<you>.workers.dev`.
 **4. Fill in `js/config.js`** — `AUTH.clientId` = the Client ID, `AUTH.tokenUrl` = the worker URL + `/token`. Commit and push.
 
 The client secret never goes into this repo; it only lives in Cloudflare.
+
+## Auto-approval of shared themes
+
+`.github/workflows/auto-approve.yml` merges a theme pull request automatically when **all** of these are true:
+- it adds exactly one **new** file in `themes/` (changes to existing themes always wait for you),
+- the theme passes validation,
+- it has **no custom CSS**,
+- its name, author and description contain none of the words in `scripts/blocked-words.txt`.
+
+Anything else gets a **needs review** label and a comment explaining why; merge or close those yourself.
+To turn auto-approval off, delete the workflow file. Only code from `main` runs; submitted files are read as data.

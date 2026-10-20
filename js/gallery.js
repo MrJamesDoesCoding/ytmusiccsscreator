@@ -8,6 +8,8 @@ const grid = document.getElementById('grid');
 const q = document.getElementById('q');
 const sort = document.getElementById('sort');
 const heroTag = document.getElementById('hero-tag');
+const more = document.getElementById('more');
+const count = document.getElementById('count');
 let themes = [];
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -85,49 +87,82 @@ async function onLike(t, btn) {
   updateLikeButtons();
 }
 
-function render() {
-  const term = q.value.trim().toLowerCase();
-  let list = themes.filter((t) => !term || `${t.name} ${t.author} ${t.description}`.toLowerCase().includes(term));
-  const sorters = {
-    name: (a, b) => a.name.localeCompare(b.name),
-    likes: (a, b) => b.likes - a.likes || b.created.localeCompare(a.created),
-    new: (a, b) => b.created.localeCompare(a.created),
-  };
-  list = list.sort(sorters[sort.value] || sorters.new);
+const PAGE_SIZE = 24;
+let shown = PAGE_SIZE;
+let currentList = [];
+
+// Draw a card's live preview only when it scrolls near the screen.
+const lazy = typeof IntersectionObserver !== 'undefined'
+  ? new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        lazy.unobserve(e.target);
+        const t = themes.find((x) => x.id === e.target.dataset.theme);
+        if (t) mountMock(e.target, t);
+      }
+    }, { rootMargin: '400px 0px' })
+  : null;
+
+function render({ reset = true } = {}) {
   if (!themes.length) return;
-  if (!list.length) {
-    grid.innerHTML = `<div class="empty">No themes match “${esc(term)}”. <a href="editor.html">Make one</a>.</div>`;
-    return;
+  if (reset) {
+    shown = PAGE_SIZE;
+    const term = q.value.trim().toLowerCase();
+    const sorters = {
+      name: (a, b) => a.name.localeCompare(b.name),
+      likes: (a, b) => b.likes - a.likes || b.created.localeCompare(a.created),
+      new: (a, b) => b.created.localeCompare(a.created),
+    };
+    currentList = themes
+      .filter((t) => !term || `${t.name} ${t.author} ${t.description}`.toLowerCase().includes(term))
+      .sort(sorters[sort.value] || sorters.new);
+    grid.innerHTML = '';
+    if (!currentList.length) {
+      grid.innerHTML = `<div class="empty">No themes match “${esc(term)}”. <a href="editor.html">Make one</a>.</div>`;
+      updateMore();
+      return;
+    }
   }
-  grid.innerHTML = '';
-  for (const t of list) {
-    const card = document.createElement('article');
-    card.className = 'theme-card';
-    card.innerHTML = `
-      <div class="preview"></div>
-      <div>
-        <div class="card-title">
-          <h3>${esc(t.name)}</h3>
-          ${t.discussionId ? `<button type="button" class="like" data-like="${esc(t.id)}" aria-pressed="${t.mine}" title="${signedIn() || !loginEnabled ? 'Like' : 'Sign in with GitHub to like'}">${likeLabel(t)}</button>` : ''}
-        </div>
-        <div class="by">by ${esc(t.author || 'anonymous')}</div>
+  const from = grid.querySelectorAll('.theme-card').length;
+  for (const t of currentList.slice(from, shown)) grid.appendChild(cardFor(t));
+  updateMore();
+}
+
+function updateMore() {
+  const left = currentList.length - Math.min(shown, currentList.length);
+  more.hidden = left <= 0;
+  more.textContent = `Show more themes (${left} left)`;
+  count.textContent = currentList.length ? `${Math.min(shown, currentList.length)} of ${currentList.length} themes` : '';
+}
+
+function cardFor(t) {
+  const card = document.createElement('article');
+  card.className = 'theme-card';
+  card.innerHTML = `
+    <div class="preview ym-host" data-theme="${esc(t.id)}" style="aspect-ratio: 960 / 600"></div>
+    <div>
+      <div class="card-title">
+        <h3>${esc(t.name)}</h3>
+        ${t.discussionId ? `<button type="button" class="like" data-like="${esc(t.id)}" aria-pressed="${t.mine}" title="${signedIn() || !loginEnabled ? 'Like' : 'Sign in with GitHub to like'}">${likeLabel(t)}</button>` : ''}
       </div>
-      ${t.description ? `<p class="desc">${esc(t.description)}</p>` : ''}
-      <div class="actions">
-        <a class="btn btn-primary btn-small" href="themes/dist/${encodeURIComponent(t.id)}.user.css">Install with Stylus</a>
-        <a class="btn btn-small" href="themes/dist/${encodeURIComponent(t.id)}.css" download="${esc(t.id)}.css">Desktop app .css</a>
-        <a class="btn btn-small" href="editor.html?remix=${encodeURIComponent(t.id)}">Remix</a>
-        <button class="btn btn-small" type="button" data-copy>Copy CSS</button>
-      </div>`;
-    mountMock(card.querySelector('.preview'), t);
-    const likeBtn = card.querySelector('[data-like]');
-    if (likeBtn) likeBtn.addEventListener('click', () => onLike(t, likeBtn));
-    card.querySelector('[data-copy]').addEventListener('click', async () => {
-      try { await navigator.clipboard.writeText(buildCss(t)); toast('CSS copied'); }
-      catch { toast('Copy failed. Use Remix and export instead.'); }
-    });
-    grid.appendChild(card);
-  }
+      <div class="by">by ${esc(t.author || 'anonymous')}</div>
+    </div>
+    ${t.description ? `<p class="desc">${esc(t.description)}</p>` : ''}
+    <div class="actions">
+      <a class="btn btn-primary btn-small" href="themes/dist/${encodeURIComponent(t.id)}.user.css">Install with Stylus</a>
+      <a class="btn btn-small" href="themes/dist/${encodeURIComponent(t.id)}.css" download="${esc(t.id)}.css">Desktop app .css</a>
+      <a class="btn btn-small" href="editor.html?remix=${encodeURIComponent(t.id)}">Remix</a>
+      <button class="btn btn-small" type="button" data-copy>Copy CSS</button>
+    </div>`;
+  const prev = card.querySelector('.preview');
+  if (lazy) lazy.observe(prev); else mountMock(prev, t);
+  const likeBtn = card.querySelector('[data-like]');
+  if (likeBtn) likeBtn.addEventListener('click', () => onLike(t, likeBtn));
+  card.querySelector('[data-copy]').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(buildCss(t)); toast('CSS copied'); }
+    catch { toast('Copy failed. Use Remix and export instead.'); }
+  });
+  return card;
 }
 
 function startHero() {
@@ -151,6 +186,13 @@ function startHero() {
 
 mountAccount(document.getElementById('account'));
 window.addEventListener('ytm-auth', () => { for (const t of themes) t.mine = false; render(); refreshLikes(); });
-q.addEventListener('input', render);
-sort.addEventListener('change', render);
+q.addEventListener('input', () => render());
+more.addEventListener('click', () => {
+  const next = grid.querySelectorAll('.theme-card').length;
+  shown += PAGE_SIZE;
+  render({ reset: false });
+  const first = grid.querySelectorAll('.theme-card')[next];
+  if (first) first.querySelector('h3').setAttribute('tabindex', '-1'), first.querySelector('h3').focus({ preventScroll: true });
+});
+sort.addEventListener('change', () => render());
 load();

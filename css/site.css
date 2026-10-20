@@ -29,6 +29,7 @@ body { margin: 0; background: var(--site-paper); color: var(--site-ink); font: 1
 a { color: var(--site-signal); }
 h1, h2, h3 { font-family: var(--display); line-height: 1.05; margin: 0; }
 :focus-visible { outline: 3px solid var(--site-signal); outline-offset: 2px; }
+[hidden] { display: none !important; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Header */
@@ -102,6 +103,10 @@ textarea { font: 13px/1.5 ui-monospace, Consolas, monospace; resize: vertical; }
 .theme-card .by { color: var(--site-muted); font-size: 15px; }
 .theme-card .desc { margin: 0; font-size: 15px; }
 .theme-card .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
+.more-row { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 36px; }
+.more-row .count { margin: 0; color: var(--site-muted); font-size: 14px; }
+.theme-card h3:focus { outline: none; }
+.preview.ym-host:empty { background: color-mix(in srgb, var(--site-ink) 8%, transparent); border-radius: 10px; }
 .empty { padding: 40px; border: 2px dashed var(--site-line); border-radius: 12px; text-align: center; }
 
 /* How-to */

@@ -1,0 +1,29 @@
+name: Auto-approve themes
+# Merges new theme pull requests automatically when they pass every check and use no custom CSS.
+# Everything else gets a "needs review" label and waits for you.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    paths: ['themes/**']
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: write
+concurrency:
+  group: auto-approve-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  auto-approve:
+    if: github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      # Checks out main (trusted code). The submitted theme is only read as data through the API.
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node scripts/auto-merge.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}

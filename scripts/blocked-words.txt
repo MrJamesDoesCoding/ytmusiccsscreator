@@ -1,0 +1,9 @@
+# Words that stop a theme from being approved automatically.
+# One per line, case doesn't matter. Matched as whole words in the theme's name, author and description.
+# A match doesn't reject the theme: it just waits for you to review it.
+fuck
+shit
+cunt
+bitch
+porn
+nazi
