@@ -2,7 +2,7 @@ import { buildCss, normalizeTheme } from './theme.js';
 import { mountMock, applyTheme } from './mock.js';
 import { mountAccount, signedIn, login, loginEnabled } from './auth.js';
 import { fetchLikes, setLike } from './likes.js';
-import { REPO } from './config.js';
+import { REPO, DONATE } from './config.js';
 
 const grid = document.getElementById('grid');
 const q = document.getElementById('q');
@@ -185,6 +185,7 @@ function startHero() {
 }
 
 mountAccount(document.getElementById('account'));
+if (DONATE && DONATE.url) { const c = document.getElementById('coffee'); c.href = DONATE.url; c.hidden = false; }
 window.addEventListener('ytm-auth', () => { for (const t of themes) t.mine = false; render(); refreshLikes(); });
 q.addEventListener('input', () => render());
 more.addEventListener('click', () => {

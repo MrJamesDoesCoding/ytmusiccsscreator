@@ -15,3 +15,6 @@ export const AUTH = {
 
 // Discussions category that holds one discussion per theme (its 👍 reactions are the likes).
 export const LIKES = { category: 'Themes' };
+
+// "Buy me a coffee" link in the footer. Leave empty to hide it.
+export const DONATE = { url: '' };

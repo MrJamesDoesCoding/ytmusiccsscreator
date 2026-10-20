@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://mrjamesdoescoding.github.io/ytmusiccsscreator/sitemap.xml
