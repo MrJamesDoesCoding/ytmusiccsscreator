@@ -17,4 +17,4 @@ export const AUTH = {
 export const LIKES = { category: 'Themes' };
 
 // "Buy me a coffee" link in the footer. Leave empty to hide it.
-export const DONATE = { url: '' };
+export const DONATE = { url: 'https://paypal.me/MrJamesDoesCoding' };
