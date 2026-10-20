@@ -1,11 +1,12 @@
 // Validates every theme in themes/*.json and writes:
 //   themes/index.json          (list used by the gallery)
 //   themes/dist/<id>.user.css  (one-click Stylus installs)
+//   themes/dist/<id>.css       (plain CSS for the YouTube Music Desktop App)
 // Usage: node scripts/build.mjs [--check]   (--check validates only, writes nothing)
 import { readdir, readFile, writeFile, mkdir, rm } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { normalizeTheme, validateTheme, buildUserCss } from '../js/theme.js';
+import { normalizeTheme, validateTheme, buildUserCss, buildPlainCss } from '../js/theme.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dir = join(root, 'themes');
@@ -49,7 +50,10 @@ if (!checkOnly) {
   const dist = join(dir, 'dist');
   await rm(dist, { recursive: true, force: true });
   await mkdir(dist, { recursive: true });
-  for (const t of themes) await writeFile(join(dist, `${t.id}.user.css`), buildUserCss(t));
+  for (const t of themes) {
+    await writeFile(join(dist, `${t.id}.user.css`), buildUserCss(t));
+    await writeFile(join(dist, `${t.id}.css`), buildPlainCss(t));
+  }
   await writeFile(join(dir, 'index.json'), JSON.stringify(themes));
   console.log(`\nBuilt ${themes.length} themes.`);
 } else {

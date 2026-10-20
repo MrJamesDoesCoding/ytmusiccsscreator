@@ -1,4 +1,4 @@
-import { FONTS, buildCss, buildUserCss, newTheme, normalizeTheme, slugify, validateTheme, LIMITS } from './theme.js';
+import { FONTS, buildCss, buildUserCss, buildPlainCss, newTheme, normalizeTheme, slugify, validateTheme, LIMITS } from './theme.js';
 import { mountMock, applyTheme } from './mock.js';
 import { REPO } from './config.js';
 
@@ -246,6 +246,7 @@ $('btn-copy').addEventListener('click', async () => {
   catch { $('export-css').select(); toast('Press Ctrl+C to copy'); }
 });
 $('btn-dl-usercss').addEventListener('click', () => { const t = finalTheme(); download(`${t.id}.user.css`, buildUserCss(t), 'text/css'); });
+$('btn-dl-css').addEventListener('click', () => { const t = finalTheme(); download(`${t.id}.css`, buildPlainCss(t), 'text/css'); });
 $('btn-dl-json').addEventListener('click', () => { const t = finalTheme(); download(`${t.id}.json`, themeFileJson(t), 'application/json'); });
 $('file-import').addEventListener('change', async (e) => {
   const file = e.target.files[0];

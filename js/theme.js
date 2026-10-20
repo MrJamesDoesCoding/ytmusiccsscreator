@@ -302,6 +302,14 @@ ${font ? `  @import url("${font}");\n` : ''}${body}
 `;
 }
 
+// Plain CSS file for apps that load a custom stylesheet directly,
+// e.g. the YouTube Music Desktop App (Settings > Appearance > Custom CSS).
+export function buildPlainCss(theme) {
+  const t = normalizeTheme(theme);
+  const font = googleFontUrl(t.settings.text.font);
+  return `/* ${meta(t.name)} by ${meta(t.author || 'anonymous')} */\n${font ? `@import url("${font}");\n` : ''}${buildCss(t)}`;
+}
+
 export function slugify(name) {
   return (String(name).toLowerCase().normalize('NFKD').replace(/[^\w\s-]/g, '').trim().replace(/[\s_]+/g, '-').replace(/-+/g, '-').slice(0, 40) || 'theme');
 }

@@ -51,6 +51,7 @@ function render() {
       ${t.description ? `<p class="desc">${esc(t.description)}</p>` : ''}
       <div class="actions">
         <a class="btn btn-primary btn-small" href="themes/dist/${encodeURIComponent(t.id)}.user.css">Install with Stylus</a>
+        <a class="btn btn-small" href="themes/dist/${encodeURIComponent(t.id)}.css" download="${esc(t.id)}.css">Desktop app .css</a>
         <a class="btn btn-small" href="editor.html?remix=${encodeURIComponent(t.id)}">Remix</a>
         <button class="btn btn-small" type="button" data-copy>Copy CSS</button>
       </div>`;
