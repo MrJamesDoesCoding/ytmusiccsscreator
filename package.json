@@ -1,0 +1,10 @@
+{
+  "name": "ytmusic-theme-gallery",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/build.mjs --check",
+    "dev": "node scripts/build.mjs && npx --yes serve -l 5173 ."
+  }
+}

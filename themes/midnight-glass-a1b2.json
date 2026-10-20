@@ -1,0 +1,18 @@
+{
+  "name": "Midnight Glass",
+  "author": "MrJames",
+  "description": "Deep indigo gradient with frosted top and player bars.",
+  "version": "1.0.0",
+  "created": "2026-10-20",
+  "settings": {
+    "background": { "type": "gradient", "color": "#0b1030", "color2": "#3a1452", "angle": 150 },
+    "navbar": { "color": "#0b1030", "opacity": 0.55, "blur": 18 },
+    "sidebar": { "color": "#0b1030", "opacity": 0.35, "border": true },
+    "player": { "color": "#120c2e", "opacity": 0.7, "blur": 20 },
+    "text": { "primary": "#f1ecff", "secondary": "#a59cc9", "font": "Outfit" },
+    "accent": { "color": "#9b7bff" },
+    "cards": { "radius": 14, "hover": "#9b7bff", "hoverOpacity": 0.15 },
+    "chips": { "color": "#ffffff", "opacity": 0.08, "text": "#f1ecff", "radius": 18 }
+  },
+  "customCss": ""
+}

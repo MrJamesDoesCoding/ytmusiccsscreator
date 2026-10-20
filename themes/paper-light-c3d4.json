@@ -1,0 +1,18 @@
+{
+  "name": "Paper Light",
+  "author": "MrJames",
+  "description": "A light theme with ink-dark text and a cobalt accent.",
+  "version": "1.0.0",
+  "created": "2026-10-19",
+  "settings": {
+    "background": { "type": "solid", "color": "#f3f1ec" },
+    "navbar": { "color": "#f3f1ec", "opacity": 1, "blur": 0 },
+    "sidebar": { "color": "#ebe8e1", "opacity": 1, "border": true },
+    "player": { "color": "#ffffff", "opacity": 1, "blur": 0 },
+    "text": { "primary": "#1b1b1f", "secondary": "#5d5d66", "font": "DM Sans" },
+    "accent": { "color": "#2346d8" },
+    "cards": { "radius": 6, "hover": "#1b1b1f", "hoverOpacity": 0.07 },
+    "chips": { "color": "#1b1b1f", "opacity": 0.08, "text": "#1b1b1f", "radius": 6 }
+  },
+  "customCss": "ytmusic-player-bar { border-top: 1px solid #00000014; }"
+}

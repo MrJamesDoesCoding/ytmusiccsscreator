@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Theme maker · MrJames</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Roboto:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="css/site.css">
+  <link rel="stylesheet" href="css/mock.css">
+  <link rel="stylesheet" href="css/editor.css">
+</head>
+<body class="ed-body">
+  <header class="site-head ed-head">
+    <a class="brand" href="./"><span class="brand-mark" aria-hidden="true"></span>MrJames</a>
+    <label class="sr-only" for="theme-name">Theme name</label>
+    <input type="text" id="theme-name" class="ed-name" maxlength="60" placeholder="Name your theme">
+    <nav class="site-nav" aria-label="Theme actions">
+      <button class="btn btn-small" type="button" id="btn-reset">Start over</button>
+      <button class="btn btn-small" type="button" id="btn-export">Export</button>
+      <button class="btn btn-primary btn-small" type="button" id="btn-share">Share</button>
+    </nav>
+  </header>
+
+  <div class="ed">
+    <nav class="ed-parts" aria-label="Parts of the player" id="parts"></nav>
+    <section class="ed-stage" aria-label="Preview">
+      <p class="ed-hint">Click any part of the preview to change it.</p>
+      <div id="stage"></div>
+    </section>
+    <aside class="ed-inspector" id="inspector" aria-live="polite"></aside>
+  </div>
+
+  <dialog id="dlg-export" class="ed-dialog">
+    <form method="dialog" class="ed-dialog-head"><h2>Export</h2><button class="btn btn-small" aria-label="Close">Close</button></form>
+    <p>Copy this CSS into any style extension, or download a file Stylus can install.</p>
+    <label class="sr-only" for="export-css">Generated CSS</label>
+    <textarea id="export-css" rows="14" readonly></textarea>
+    <div class="ed-dialog-actions">
+      <button class="btn btn-primary btn-small" type="button" id="btn-copy">Copy CSS</button>
+      <button class="btn btn-small" type="button" id="btn-dl-usercss">Download .user.css</button>
+      <button class="btn btn-small" type="button" id="btn-dl-json">Download theme file (.json)</button>
+      <label class="btn btn-small">Open a theme file<input type="file" id="file-import" accept=".json,application/json" hidden></label>
+    </div>
+    <p class="ed-note">To install a downloaded .user.css: open the Stylus dashboard, choose <em>Write new style</em>, paste the CSS, and save. Themes from the gallery install in one click.</p>
+  </dialog>
+
+  <dialog id="dlg-share" class="ed-dialog">
+    <form method="dialog" class="ed-dialog-head"><h2>Share to the gallery</h2><button class="btn btn-small" aria-label="Close">Close</button></form>
+    <p>Your theme is saved as a small file in the gallery's GitHub repository. GitHub will open with the file filled in. You need a free GitHub account to propose it.</p>
+    <label for="share-author">Your name, as shown in the gallery</label>
+    <input type="text" id="share-author" maxlength="40">
+    <label for="share-desc">Short description (optional)</label>
+    <input type="text" id="share-desc" maxlength="200">
+    <ul class="ed-errors" id="share-errors"></ul>
+    <div class="ed-dialog-actions">
+      <button class="btn btn-primary btn-small" type="button" id="btn-github">Open GitHub to share</button>
+    </div>
+  </dialog>
+
+  <script type="module" src="js/editor.js"></script>
+</body>
+</html>

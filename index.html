@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MrJames · YouTube Music themes</title>
+  <meta name="description" content="Browse community themes for YouTube Music, install them with Stylus, or make your own by clicking on the parts you want to change.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Roboto:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="css/site.css">
+  <link rel="stylesheet" href="css/mock.css">
+</head>
+<body>
+  <header class="site-head">
+    <a class="brand" href="./"><span class="brand-mark" aria-hidden="true"></span>MrJames</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="#gallery" class="hide-sm">Gallery</a>
+      <a href="#install" class="hide-sm">How to install</a>
+      <a class="btn btn-primary btn-small" href="editor.html">Make a theme</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <h1>Make YouTube Music look like yours.</h1>
+        <p>Pick a theme someone else made, or click any part of the player to recolor it. No CSS needed.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="editor.html">Make a theme</a>
+          <a class="btn" href="#gallery">Browse themes</a>
+        </div>
+      </div>
+      <div class="hero-stage">
+        <div id="hero-mock"></div>
+        <a class="hero-tag" id="hero-tag" href="#gallery" aria-live="polite"></a>
+      </div>
+    </section>
+
+    <section class="section" id="gallery">
+      <div class="section-head">
+        <h2>Community themes</h2>
+        <div class="toolbar">
+          <label class="sr-only" for="q">Search themes</label>
+          <input type="search" id="q" placeholder="Search by name or author">
+          <label class="sr-only" for="sort">Sort</label>
+          <select id="sort">
+            <option value="new">Newest first</option>
+            <option value="name">Name A–Z</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid" id="grid" aria-live="polite"></div>
+    </section>
+
+    <section class="section" id="install">
+      <div class="steps-wrap">
+        <div>
+          <h3>Install a theme</h3>
+          <ol class="steps">
+            <li>Add the free <a href="https://add0n.com/stylus.html" rel="noopener">Stylus extension</a> to Chrome, Edge or Firefox.</li>
+            <li>Click <strong>Install with Stylus</strong> on any theme, then confirm in the Stylus tab that opens.</li>
+            <li>Open <a href="https://music.youtube.com" rel="noopener">music.youtube.com</a>. To switch off a theme, toggle it in the Stylus menu.</li>
+          </ol>
+        </div>
+        <div>
+          <h3>Share your own</h3>
+          <ol class="steps">
+            <li>Build it in the <a href="editor.html">theme maker</a> and give it a name.</li>
+            <li>Choose <strong>Share</strong>. GitHub opens with your theme file filled in; sign in and propose the change.</li>
+            <li>Once the change is merged, your theme appears in this gallery for everyone.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-foot">
+    Remaster is a community project and is not affiliated with YouTube or Google. Themes change only how the site looks in your browser.
+  </footer>
+
+  <script type="module" src="js/gallery.js"></script>
+</body>
+</html>

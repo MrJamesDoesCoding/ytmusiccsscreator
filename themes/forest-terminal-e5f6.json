@@ -1,0 +1,18 @@
+{
+  "name": "Forest Terminal",
+  "author": "MrJames",
+  "description": "Mossy greens, square corners and a monospace font.",
+  "version": "1.0.0",
+  "created": "2026-10-18",
+  "settings": {
+    "background": { "type": "solid", "color": "#0d1a12" },
+    "navbar": { "color": "#0d1a12", "opacity": 1, "blur": 0 },
+    "sidebar": { "color": "#0a140e", "opacity": 1, "border": true },
+    "player": { "color": "#13261a", "opacity": 1, "blur": 0 },
+    "text": { "primary": "#d6f5c9", "secondary": "#7fa982", "font": "JetBrains Mono" },
+    "accent": { "color": "#5be37d" },
+    "cards": { "radius": 0, "hover": "#5be37d", "hoverOpacity": 0.1 },
+    "chips": { "color": "#5be37d", "opacity": 0.12, "text": "#d6f5c9", "radius": 0 }
+  },
+  "customCss": ""
+}

@@ -1,0 +1,18 @@
+{
+  "name": "Sunset Drive",
+  "author": "MrJames",
+  "description": "Warm orange to magenta, with rounded pill chips.",
+  "version": "1.0.0",
+  "created": "2026-10-17",
+  "settings": {
+    "background": { "type": "gradient", "color": "#2a0f2e", "color2": "#c2410c", "angle": 200 },
+    "navbar": { "color": "#2a0f2e", "opacity": 0.4, "blur": 14 },
+    "sidebar": { "color": "#2a0f2e", "opacity": 0.3, "border": false },
+    "player": { "color": "#1d0a20", "opacity": 0.8, "blur": 16 },
+    "text": { "primary": "#fff3e6", "secondary": "#f2b9a0", "font": "Lexend" },
+    "accent": { "color": "#ffb020" },
+    "cards": { "radius": 20, "hover": "#ffffff", "hoverOpacity": 0.12 },
+    "chips": { "color": "#ffffff", "opacity": 0.14, "text": "#fff3e6", "radius": 24 }
+  },
+  "customCss": ""
+}
