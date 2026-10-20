@@ -62,3 +62,17 @@ input[type=range] { width: 100%; accent-color: var(--site-signal); }
   .ed-name { max-width: none; order: 3; flex-basis: 100%; }
   .ed-head .site-nav { margin-left: auto; }
 }
+
+.ed-status { color: var(--site-muted); font-size: 14px; white-space: nowrap; }
+.ed-progress { margin: 12px 0 0; padding-left: 1.3em; font-size: 15px; }
+.ed-progress:empty { display: none; }
+.ed-progress li.done { color: var(--site-muted); }
+.ed-progress li.ok { font-weight: 700; }
+.mine-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px; margin-top: 12px; max-height: 60vh; overflow-y: auto; padding: 2px; }
+.mine-card { display: flex; flex-direction: column; gap: 6px; }
+.mine-card .ym-host { border-radius: 8px; border: 1px solid var(--site-line); }
+.mine-card .ym-host.is-current { outline: 3px solid var(--site-sticker); outline-offset: 2px; }
+.mine-card strong { font-size: 15px; }
+.mine-card small { color: var(--site-muted); }
+.mine-card .row { display: flex; gap: 6px; }
+@media (max-width: 720px) { .ed-status { order: 4; flex-basis: 100%; } }

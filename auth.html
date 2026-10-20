@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Signing in…</title>
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+  <main class="auth-page">
+    <h1 id="msg">Signing you in…</h1>
+    <p id="detail"></p>
+    <p><a class="btn" href="./" id="back" hidden>Back to the gallery</a></p>
+  </main>
+  <script type="module">
+    import { finishLogin } from './js/auth.js';
+    try {
+      const back = await finishLogin();
+      location.replace(back);
+    } catch (e) {
+      document.getElementById('msg').textContent = 'Sign-in didn’t work';
+      document.getElementById('detail').textContent = e.message;
+      document.getElementById('back').hidden = false;
+    }
+  </script>
+</body>
+</html>

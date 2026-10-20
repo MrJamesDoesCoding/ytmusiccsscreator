@@ -3,10 +3,13 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'   # hourly: refresh like counts
 permissions:
   contents: read
   pages: write
   id-token: write
+  discussions: write
 concurrency:
   group: pages
   cancel-in-progress: true
@@ -21,6 +24,8 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
       - run: node scripts/build.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: rm -rf .git .github
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

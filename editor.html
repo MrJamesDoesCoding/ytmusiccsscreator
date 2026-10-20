@@ -16,10 +16,13 @@
     <a class="brand" href="./"><span class="brand-mark" aria-hidden="true"></span>Home</a>
     <label class="sr-only" for="theme-name">Theme name</label>
     <input type="text" id="theme-name" class="ed-name" maxlength="60" placeholder="Name your theme">
+    <span class="ed-status" id="save-status" role="status"></span>
     <nav class="site-nav" aria-label="Theme actions">
-      <button class="btn btn-small" type="button" id="btn-reset">Start over</button>
+      <button class="btn btn-small" type="button" id="btn-mine">My themes</button>
+      <button class="btn btn-small" type="button" id="btn-reset">New theme</button>
       <button class="btn btn-small" type="button" id="btn-export">Export</button>
       <button class="btn btn-primary btn-small" type="button" id="btn-share">Share</button>
+      <div id="account" class="account-slot"></div>
     </nav>
   </header>
 
@@ -49,15 +52,23 @@
 
   <dialog id="dlg-share" class="ed-dialog">
     <form method="dialog" class="ed-dialog-head"><h2>Share to the gallery</h2><button class="btn btn-small" aria-label="Close">Close</button></form>
-    <p>Your theme is saved as a small file in the gallery's GitHub repository. GitHub will open with the file filled in. You need a free GitHub account to propose it.</p>
+    <p id="share-intro">Your theme becomes a small file in the gallery's GitHub repository. Once it's approved, it shows up in the gallery for everyone.</p>
     <label for="share-author">Your name, as shown in the gallery</label>
     <input type="text" id="share-author" maxlength="40">
     <label for="share-desc">Short description (optional)</label>
     <input type="text" id="share-desc" maxlength="200">
     <ul class="ed-errors" id="share-errors"></ul>
+    <ol class="ed-progress" id="share-progress" aria-live="polite"></ol>
     <div class="ed-dialog-actions">
-      <button class="btn btn-primary btn-small" type="button" id="btn-github">Open GitHub to share</button>
+      <button class="btn btn-primary btn-small" type="button" id="btn-share-api" hidden>Share to the gallery</button>
+      <button class="btn btn-primary btn-small" type="button" id="btn-share-login" hidden>Sign in with GitHub to share</button>
+      <button class="btn btn-small" type="button" id="btn-github">Continue on GitHub's website instead</button>
     </div>
+  </dialog>
+
+  <dialog id="dlg-mine" class="ed-dialog">
+    <form method="dialog" class="ed-dialog-head"><h2>My themes</h2><button class="btn btn-small" aria-label="Close">Close</button></form>
+    <div id="mine-body"></div>
   </dialog>
 
   <script type="module" src="js/editor.js"></script>

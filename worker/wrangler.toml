@@ -1,0 +1,12 @@
+name = "ytm-auth"
+main = "index.js"
+compatibility_date = "2025-06-01"
+
+[vars]
+# Your OAuth App's Client ID (public).
+GITHUB_CLIENT_ID = ""
+# Comma-separated list of sites allowed to use this worker.
+ALLOWED_ORIGINS = "https://mrjamesdoescoding.github.io,http://localhost:5173"
+
+# The client secret is NOT stored here. Set it with:
+#   npx wrangler secret put GITHUB_CLIENT_SECRET

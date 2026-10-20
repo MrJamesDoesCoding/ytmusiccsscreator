@@ -1,6 +1,9 @@
 import { FONTS, buildCss, buildUserCss, buildPlainCss, newTheme, normalizeTheme, slugify, validateTheme, LIMITS } from './theme.js';
 import { mountMock, applyTheme } from './mock.js';
 import { REPO } from './config.js';
+import { mountAccount, signedIn, login, loginEnabled, user } from './auth.js';
+import { loadCloud, saveToCloud, deleteFromCloud } from './cloud.js';
+import { shareViaApi } from './share.js';
 
 const DRAFT_KEY = 'remaster.draft.v1';
 const SWATCHES = ['#030303', '#121212', '#1e1e2e', '#2b193d', '#0d2b2b', '#f4f1ff', '#ffffff', '#ff0000', '#ff4e8a', '#7c5cff', '#2fb5ff', '#2ed47a', '#ffb020'];
@@ -77,7 +80,38 @@ function toast(msg) {
   setTimeout(() => t.remove(), 2200);
 }
 
-function saveDraft() { try { localStorage.setItem(DRAFT_KEY, JSON.stringify(theme)); } catch {} }
+function newKey() { return (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36)); }
+
+let cloudTimer = null;
+let cloudBusy = false;
+function setStatus(text) { $('save-status').textContent = text; }
+
+function saveDraft({ cloud = true } = {}) {
+  if (cloud) theme.updated = new Date().toISOString();
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(theme)); } catch {}
+  if (!cloud) { setStatus(''); return; }
+  if (signedIn()) {
+    setStatus('Saving…');
+    clearTimeout(cloudTimer);
+    cloudTimer = setTimeout(saveCloudNow, 2500);
+  } else {
+    setStatus(loginEnabled ? 'Saved in this browser' : '');
+  }
+}
+
+async function saveCloudNow() {
+  if (!signedIn()) return;
+  if (cloudBusy) { cloudTimer = setTimeout(saveCloudNow, 1500); return; }
+  cloudBusy = true;
+  try {
+    const { idSuffix, key, updated, ...rest } = theme;
+    await saveToCloud({ key: theme.key, updated: theme.updated, idSuffix: theme.idSuffix, theme: normalizeTheme(rest) });
+    setStatus('Saved to your GitHub');
+  } catch (e) {
+    setStatus('Not saved online');
+    toast(e.message || 'Could not save to GitHub');
+  } finally { cloudBusy = false; }
+}
 function loadDraft() { try { const d = localStorage.getItem(DRAFT_KEY); return d ? JSON.parse(d) : null; } catch { return null; } }
 
 // ---------- Parts list ----------
@@ -252,7 +286,7 @@ $('file-import').addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
   try {
-    load(JSON.parse(await file.text()));
+    load(JSON.parse(await file.text()), { keepKey: false });
     $('dlg-export').close();
     toast('Theme opened');
   } catch { toast('That file is not a valid theme file'); }
@@ -261,39 +295,144 @@ $('file-import').addEventListener('change', async (e) => {
 
 // ---------- Share via GitHub ----------
 $('btn-share').addEventListener('click', () => {
-  $('share-author').value = theme.author || '';
+  $('share-author').value = theme.author || (signedIn() ? user().login : '');
   $('share-desc').value = theme.description || '';
   $('share-errors').innerHTML = '';
+  $('share-progress').innerHTML = '';
+  $('btn-share-api').hidden = !signedIn();
+  $('btn-share-api').disabled = false;
+  $('btn-share-login').hidden = signedIn() || !loginEnabled;
+  $('btn-github').hidden = false;
   $('dlg-share').showModal();
 });
-$('btn-github').addEventListener('click', () => {
+
+function prepareShare() {
   theme.author = $('share-author').value.trim();
   theme.description = $('share-desc').value.trim();
   saveDraft();
   const t = finalTheme();
   const errors = validateTheme({ ...theme, name: theme.name.trim() });
   if (theme.name.trim() === 'Untitled theme') errors.unshift('Give your theme a name first (top of the page).');
-  if (REPO.owner === 'YOUR-GITHUB-USERNAME') errors.push('Sharing isn\'t set up on this copy of the site yet: set REPO in js/config.js.');
   $('share-errors').innerHTML = errors.map((x) => `<li>${esc(x)}</li>`).join('');
-  if (errors.length) return;
+  return errors.length ? null : t;
+}
+
+$('btn-share-login').addEventListener('click', () => {
+  theme.author = $('share-author').value.trim();
+  theme.description = $('share-desc').value.trim();
+  saveDraft();
+  login(location.href.split('#')[0] + '#share');
+});
+
+$('btn-share-api').addEventListener('click', async () => {
+  const t = prepareShare();
+  if (!t) return;
+  const btn = $('btn-share-api');
+  const prog = $('share-progress');
+  btn.disabled = true;
+  $('btn-github').hidden = true;
+  prog.innerHTML = '';
+  const step = (text) => {
+    prog.querySelectorAll('li').forEach((li) => li.classList.add('done'));
+    prog.insertAdjacentHTML('beforeend', `<li>${esc(text)}</li>`);
+  };
+  try {
+    const url = await shareViaApi(t, themeFileJson(t), step);
+    prog.querySelectorAll('li').forEach((li) => li.classList.add('done'));
+    prog.insertAdjacentHTML('beforeend', `<li class="ok">Done. <a href="${esc(url)}" target="_blank" rel="noopener">View your pull request</a>. Your theme appears in the gallery once it's approved.</li>`);
+    btn.hidden = true;
+  } catch (e) {
+    $('share-errors').innerHTML = `<li>${esc(e.message || 'Sharing failed')}</li>`;
+    btn.disabled = false;
+    $('btn-github').hidden = false;
+  }
+});
+
+$('btn-github').addEventListener('click', () => {
+  const t = prepareShare();
+  if (!t) return;
   const url = `https://github.com/${REPO.owner}/${REPO.name}/new/${REPO.branch}/themes?filename=${encodeURIComponent(t.id + '.json')}&value=${encodeURIComponent(themeFileJson(t))}`;
   window.open(url, '_blank', 'noopener');
 });
 
 // ---------- Start over ----------
 $('btn-reset').addEventListener('click', () => {
-  if (!confirm('Start over with the default YouTube Music look? Your current changes will be lost.')) return;
-  load(newTheme());
+  if (!signedIn() && !confirm('Start a new theme with the default YouTube Music look? Your current changes will be lost.')) return;
+  load(newTheme(), { keepKey: false });
+  toast(signedIn() ? 'New theme started. Your previous one is in My themes.' : 'New theme started');
 });
 
-function load(raw) {
+// ---------- My themes ----------
+async function openMine() {
+  const body = $('mine-body');
+  $('dlg-mine').showModal();
+  if (!signedIn()) {
+    body.innerHTML = loginEnabled
+      ? `<p>Sign in with GitHub to keep all your themes in your account and open them on any device. Until then, your current theme is saved in this browser only.</p>
+         <div class="ed-dialog-actions"><button class="btn btn-primary btn-small" type="button" data-mine-login>Sign in with GitHub</button></div>`
+      : `<p>Your current theme is saved in this browser. Use Export → Download theme file to keep a copy.</p>`;
+    return;
+  }
+  body.innerHTML = `<p>Loading your themes…</p>`;
+  try {
+    await saveCloudNow();
+    renderMine(await loadCloud());
+  } catch (e) {
+    body.innerHTML = `<p class="ed-errors">${esc(e.message)}</p>`;
+  }
+}
+
+function renderMine(list) {
+  const body = $('mine-body');
+  list.sort((a, b) => (b.updated || '').localeCompare(a.updated || ''));
+  body.innerHTML = `<p>Saved to a private gist on your GitHub account (<strong>${esc(user().login)}</strong>). Changes save automatically.</p>
+    <div class="ed-dialog-actions"><button class="btn btn-small" type="button" data-mine-new>New theme</button></div>
+    ${list.length ? '' : '<p>No saved themes yet.</p>'}
+    <div class="mine-grid">${list.map((x) => `
+      <div class="mine-card" data-key="${esc(x.key)}">
+        <div class="mine-prev"></div>
+        <strong>${esc(x.theme.name)}</strong>
+        <small>Edited ${esc(new Date(x.updated).toLocaleString())}</small>
+        <div class="row">
+          <button class="btn btn-small" type="button" data-mine-open>${x.key === theme.key ? 'Editing' : 'Open'}</button>
+          <button class="btn btn-small" type="button" data-mine-del aria-label="Delete ${esc(x.theme.name)}">Delete</button>
+        </div>
+      </div>`).join('')}</div>`;
+  body.querySelectorAll('.mine-card').forEach((card) => {
+    const x = list.find((y) => y.key === card.dataset.key);
+    mountMock(card.querySelector('.mine-prev'), x.theme);
+    if (x.key === theme.key) card.querySelector('.ym-host').classList.add('is-current');
+  });
+  body.onclick = async (e) => {
+    const card = e.target.closest('.mine-card');
+    const x = card && list.find((y) => y.key === card.dataset.key);
+    if (e.target.closest('[data-mine-new]')) { load(newTheme(), { keepKey: false }); $('dlg-mine').close(); return; }
+    if (e.target.closest('[data-mine-open]') && x) {
+      load({ ...x.theme, key: x.key, idSuffix: x.idSuffix }); $('dlg-mine').close(); return;
+    }
+    if (e.target.closest('[data-mine-del]') && x) {
+      if (!confirm(`Delete "${x.theme.name}" from your account?`)) return;
+      try {
+        const rest = await deleteFromCloud(x.key);
+        if (x.key === theme.key) load(newTheme(), { keepKey: false });
+        renderMine(rest);
+      } catch (err) { toast(err.message); }
+    }
+  };
+}
+$('btn-mine').addEventListener('click', openMine);
+$('dlg-mine').addEventListener('click', (e) => { if (e.target.closest('[data-mine-login]')) login(location.href.split('#')[0] + '#my-themes'); });
+
+function load(raw, { keepKey = true } = {}) {
   const suffix = raw.idSuffix;
+  const key = keepKey && raw.key ? raw.key : newKey();
   theme = normalizeTheme(raw);
   delete theme.id;
-  if (suffix) theme.idSuffix = suffix;
+  theme.key = key;
+  if (suffix && keepKey) theme.idSuffix = suffix;
   $('theme-name').value = theme.name;
   applyTheme(mockEl, theme);
-  saveDraft();
+  saveDraft({ cloud: false });
   select(current);
 }
 
@@ -311,5 +450,11 @@ async function init() {
     history.replaceState(null, '', location.pathname);
   }
   load(start);
+  mountAccount($('account'));
+  window.addEventListener('ytm-auth', () => saveDraft());
+  const hash = location.hash;
+  if (hash) history.replaceState(null, '', location.pathname + location.search);
+  if (hash === '#my-themes') openMine();
+  if (hash === '#share') $('btn-share').click();
 }
 init();

@@ -2,11 +2,13 @@
 //   themes/index.json          (list used by the gallery)
 //   themes/dist/<id>.user.css  (one-click Stylus installs)
 //   themes/dist/<id>.css       (plain CSS for the YouTube Music Desktop App)
+// In GitHub Actions (GITHUB_TOKEN set) it also creates one Discussion per theme and records like counts.
 // Usage: node scripts/build.mjs [--check]   (--check validates only, writes nothing)
 import { readdir, readFile, writeFile, mkdir, rm } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { normalizeTheme, validateTheme, buildUserCss, buildPlainCss } from '../js/theme.js';
+import { syncDiscussions } from './discussions.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dir = join(root, 'themes');
@@ -45,6 +47,21 @@ if (failed) {
 }
 
 themes.sort((a, b) => b.created.localeCompare(a.created) || a.name.localeCompare(b.name));
+
+if (!checkOnly && process.env.GITHUB_TOKEN && process.env.GITHUB_REPOSITORY) {
+  try {
+    const [owner, name] = process.env.GITHUB_REPOSITORY.split('/');
+    const likes = await syncDiscussions(themes, {
+      token: process.env.GITHUB_TOKEN,
+      repository: process.env.GITHUB_REPOSITORY,
+      categoryName: process.env.LIKES_CATEGORY || 'Themes',
+      siteUrl: process.env.SITE_URL || `https://${owner.toLowerCase()}.github.io/${name}/`,
+    });
+    for (const t of themes) Object.assign(t, likes[t.id] || {});
+  } catch (e) {
+    console.warn(`! Could not sync likes: ${e.message}`);
+  }
+}
 
 if (!checkOnly) {
   const dist = join(dir, 'dist');
